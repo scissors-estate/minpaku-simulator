@@ -419,6 +419,87 @@
   .cover.hidden { display: none; }
   .main-content.hidden { display: none; }
 
+  /* ── Main Tab Bar ── */
+  .main-tab-bar {
+    display: flex;
+    background: #fff;
+    border-bottom: 2px solid var(--border);
+    padding: 0 16px;
+    gap: 0;
+    position: sticky;
+    top: 68px;
+    z-index: 99;
+  }
+  .main-tab {
+    font-size: 13px;
+    font-weight: 600;
+    padding: 10px 24px;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    transition: all 0.15s;
+  }
+  .main-tab:hover { color: var(--text); }
+  .main-tab.active { color: var(--navy); border-bottom-color: var(--navy); }
+
+  /* ── Fund Plan Form ── */
+  .fund-grid { display: grid; gap: 10px; }
+  .fund-grid.two-col { grid-template-columns: 1fr 1fr; gap: 16px; }
+  .fund-row { display: flex; align-items: center; gap: 10px; }
+  .fund-row label { font-size: 12px; font-weight: 500; min-width: 120px; color: var(--text); }
+  .fund-row input {
+    flex: 1;
+    font-size: 13px;
+    padding: 6px 10px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    outline: none;
+    transition: border-color var(--transition);
+  }
+  .fund-row input:focus { border-color: var(--navy); }
+  .fund-summary {
+    margin-top: 12px;
+    padding: 10px 14px;
+    background: var(--bg);
+    border-radius: 8px;
+    font-size: 13px;
+    line-height: 1.8;
+  }
+  .fund-summary strong { color: var(--navy); font-size: 15px; }
+  .fund-sub-title { font-size: 12px; font-weight: 600; color: var(--navy); margin-bottom: 8px; border-bottom: 1px solid var(--border); padding-bottom: 4px; }
+  .muted { color: var(--muted); font-size: 11px; }
+
+  /* ── Fund Plan Print Area ── */
+  .fund-print-area { display: none; }
+
+  @media print {
+    .fund-print-area.active { display: block !important; }
+    .fund-print-area.active ~ footer { display: none; }
+  }
+
+  .fp-page { padding: 24px 28px; }
+  .fp-page-break { page-break-after: always; }
+  .fp-title { text-align: center; font-size: 28px; font-weight: 800; margin-bottom: 8px; }
+  .fp-date { text-align: right; font-size: 13px; color: var(--red); margin-bottom: 16px; }
+  .fp-section-label { font-size: 14px; font-weight: 700; margin-bottom: 8px; margin-top: 16px; }
+
+  .fp-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 10px; }
+  .fp-table th, .fp-table td { border: 1px dotted #aaa; padding: 6px 10px; }
+  .fp-table th { background: #f0e6d2; font-weight: 600; text-align: center; white-space: nowrap; }
+  .fp-table td { text-align: right; }
+  .fp-total-row th, .fp-total-row td { background: #fde8d0; color: var(--red); font-weight: 700; font-size: 14px; }
+  .fp-sub { background: #fff !important; font-size: 12px; color: var(--muted); }
+
+  .fp-repay { font-size: 11px; }
+  .fp-repay th { background: #f0e6d2; font-size: 11px; padding: 4px 6px; }
+  .fp-repay td { padding: 4px 6px; text-align: right; font-size: 11px; }
+
+  .fp-trial-row { display: flex; gap: 24px; }
+  .fp-trial-row > div { flex: 1; }
+
   /* ── Footer ── */
   footer {
     text-align: center;
@@ -452,6 +533,14 @@
     .cover-start-btn { display: none !important; }
     .cover-location-input { border-bottom: none; }
     .main-content.hidden { display: block !important; }
+    .main-tab-bar { display: none !important; }
+    #tab-fund { display: none !important; }
+    .fund-print-area:not(.active) ~ #tab-sim { display: block !important; }
+    .fund-print-area.active { display: block !important; }
+    .fund-print-area.active ~ #tab-sim { display: none !important; }
+    .fund-print-area.active ~ footer { display: none !important; }
+    .cover { display: none !important; }
+    .fund-print-area.active ~ .cover { display: none !important; }
     header { position: static; box-shadow: none; }
     .btn-print { display: none !important; }
     .container { padding: 12px 0; max-width: 100%; }
@@ -502,7 +591,13 @@
   </div>
 </header>
 
-<div class="container">
+<!-- メインタブ -->
+<div class="main-tab-bar">
+  <button class="main-tab active" onclick="switchMainTab('sim',this)">収益シミュレーター</button>
+  <button class="main-tab" onclick="switchMainTab('fund',this)">資金計画書</button>
+</div>
+
+<div id="tab-sim" class="container">
 
   <!-- 物件・コスト入力 -->
   <div class="card">
@@ -688,7 +783,214 @@
 
 </div>
 
-<footer>株式会社シザースエステート 民泊収益シミュレーター</footer>
+</div><!-- /tab-sim -->
+
+<!-- 資金計画書タブ -->
+<div id="tab-fund" class="container" style="display:none;">
+  <div class="card">
+    <div class="sec-title">
+      <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm-1 7V3.5L18.5 9H13zM6 20V4h5v7h7v9H6z"/></svg>
+      対象物件の情報
+    </div>
+    <div class="fund-grid">
+      <div class="fund-row"><label>物件名</label><input type="text" id="fp-name" placeholder="例：川口市芝1丁目"></div>
+      <div class="fund-row"><label>物件種別</label><input type="text" id="fp-type" placeholder="例：戸建"></div>
+      <div class="fund-row"><label>住所</label><input type="text" id="fp-address" placeholder="例：埼玉県川口市芝 1-22-5"></div>
+      <div class="fund-row"><label>物件価格</label><input type="number" id="fp-price" placeholder="15000000" step="100000"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="sec-title">
+      <svg viewBox="0 0 24 24"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>
+      諸費用
+    </div>
+    <div class="fund-grid">
+      <div class="fund-row"><label>仲介手数料</label><input type="number" id="fp-broker" placeholder="225000" step="1000"></div>
+      <div class="fund-row"><label>印紙代</label><input type="number" id="fp-stamp" placeholder="200" step="100"></div>
+      <div class="fund-row"><label>登記費用</label><input type="number" id="fp-reg" placeholder="300000" step="1000"></div>
+      <div class="fund-row"><label>ローン保証料</label><input type="number" id="fp-guarantee" placeholder="0" step="1000"></div>
+      <div class="fund-row"><label>融資事務手数料</label><input type="number" id="fp-loan-fee" placeholder="32400" step="1000"></div>
+    </div>
+    <div class="fund-summary">
+      諸費用合計：<strong id="fp-expense-total">¥0</strong> <span class="muted">※概算</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="sec-title">
+      <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+      購入・資金
+    </div>
+    <div class="fund-grid">
+      <div class="fund-row"><label>自己資金</label><input type="number" id="fp-equity" placeholder="40000000" step="100000"></div>
+    </div>
+    <div class="fund-summary">
+      購入総額：<strong id="fp-purchase-total">¥0</strong><br>
+      借入金額：<strong id="fp-borrow">¥0</strong>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="sec-title">
+      <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+      物件概要
+    </div>
+    <div class="fund-grid two-col">
+      <div>
+        <h4 class="fund-sub-title">土地</h4>
+        <div class="fund-row"><label>面積（㎡）</label><input type="number" id="fp-land-area" step="0.1" placeholder="42.9"></div>
+        <div class="fund-row"><label>セットバック</label><input type="text" id="fp-setback" placeholder="無"></div>
+        <div class="fund-row"><label>権利</label><input type="text" id="fp-rights" placeholder="所有権"></div>
+      </div>
+      <div>
+        <h4 class="fund-sub-title">建物</h4>
+        <div class="fund-row"><label>築年数</label><input type="text" id="fp-age" placeholder="1997年12月（26年）"></div>
+        <div class="fund-row"><label>延床面積（㎡）</label><input type="number" id="fp-building-area" step="0.01" placeholder="76.45"></div>
+        <div class="fund-row"><label>間取り</label><input type="text" id="fp-layout" placeholder="5K"></div>
+      </div>
+      <div>
+        <h4 class="fund-sub-title">制限</h4>
+        <div class="fund-row"><label>建蔽率 / 容積率</label><input type="text" id="fp-coverage" placeholder="60% / 200%"></div>
+        <div class="fund-row"><label>用途地域</label><input type="text" id="fp-zoning" placeholder="第一種住宅地域"></div>
+        <div class="fund-row"><label>都市計画</label><input type="text" id="fp-city-plan" placeholder="市街化区域"></div>
+      </div>
+      <div>
+        <h4 class="fund-sub-title">施設・備考</h4>
+        <div class="fund-row"><label>水道</label><input type="text" id="fp-water" placeholder="公営"></div>
+        <div class="fund-row"><label>汚水</label><input type="text" id="fp-sewage" placeholder="公共下水"></div>
+        <div class="fund-row"><label>ガス</label><input type="text" id="fp-gas" placeholder="都市ガス"></div>
+        <div class="fund-row"><label>備考</label><input type="text" id="fp-note" placeholder="現状 空室"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="sec-title">
+      <svg viewBox="0 0 24 24"><path d="M19 14V6c0-1.1-.9-2-2-2H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zm-9-1c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm13-6v11c0 1.1-.9 2-2 2H4v-2h17V7h2z"/></svg>
+      融資情報
+    </div>
+    <div class="fund-grid">
+      <div class="fund-row"><label>金融機関名</label><input type="text" id="fp-bank" placeholder="例：○○銀行"></div>
+      <div class="fund-row"><label>金利種別</label><input type="text" id="fp-rate-type" placeholder="長期固定"></div>
+      <div class="fund-row"><label>金利（%）</label><input type="number" id="fp-rate" step="0.001" placeholder="3.0"></div>
+      <div class="fund-row"><label>返済期間（年）</label><input type="number" id="fp-term" step="1" placeholder="15"></div>
+    </div>
+    <div class="fund-summary">
+      月々支払額：<strong id="fp-monthly-pay">¥0</strong>
+      支払い総額：<strong id="fp-total-pay">¥0</strong>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="sec-title">
+      <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
+      試算表
+    </div>
+    <div class="fund-grid">
+      <div class="fund-row"><label>リフォーム費用</label><input type="number" id="fp-reform" step="10000" placeholder="500000"></div>
+      <div class="fund-row"><label>固定資産税（年）</label><input type="number" id="fp-prop-tax" step="10000" placeholder="100000"></div>
+      <div class="fund-row"><label>想定家賃（月）</label><input type="number" id="fp-rent-income" step="5000" placeholder="130000"></div>
+    </div>
+    <div class="fund-summary" id="fp-yield-summary"></div>
+  </div>
+
+  <div style="text-align:center; margin: 20px 0;">
+    <button class="cover-start-btn" onclick="generateFundPlan()" style="font-size:14px; padding:10px 36px;">資金計画書を生成・印刷</button>
+  </div>
+</div><!-- /tab-fund -->
+
+<!-- 資金計画書 印刷用 -->
+<div id="fund-print" class="fund-print-area">
+  <!-- ページ1: 物件情報・諸費用・概要・融資 -->
+  <div class="fp-page fp-page-break">
+    <h2 class="fp-title">資金計画書</h2>
+    <div class="fp-date" id="fpp-date"></div>
+
+    <div class="fp-section-label">対象物件の情報</div>
+    <table class="fp-table">
+      <tr><th style="width:140px;">物件名</th><td id="fpp-name"></td></tr>
+      <tr><th>物件種別</th><td id="fpp-type"></td></tr>
+      <tr><th>住所</th><td id="fpp-address"></td></tr>
+      <tr><th>物件価格</th><td id="fpp-price"></td></tr>
+      <tr><th>諸費用概算</th><td id="fpp-expenses"></td></tr>
+      <tr class="fp-total-row"><th>購入総額</th><td id="fpp-purchase"></td></tr>
+      <tr><td style="height:6px;border:none;" colspan="2"></td></tr>
+      <tr><th class="fp-sub">自己資金</th><td id="fpp-equity"></td></tr>
+      <tr><th class="fp-sub">借入金額</th><td id="fpp-borrow"></td></tr>
+    </table>
+
+    <div class="fp-section-label">諸費用</div>
+    <table class="fp-table">
+      <tr><th style="width:200px;">諸費用項目</th><th style="width:140px;">金額</th><th>備考</th></tr>
+      <tr><td style="text-align:left;">仲介手数料総額</td><td id="fpp-broker"></td><td></td></tr>
+      <tr><td style="text-align:left;">印紙代</td><td id="fpp-stamp"></td><td></td></tr>
+      <tr><td style="text-align:left;">登記費用</td><td id="fpp-reg"></td><td></td></tr>
+      <tr><td style="text-align:left;">ローン保証料</td><td id="fpp-guarantee"></td><td></td></tr>
+      <tr><td style="text-align:left;">融資事務手数料</td><td id="fpp-loan-fee"></td><td></td></tr>
+      <tr class="fp-total-row"><th>諸費用合計</th><td id="fpp-expense-total"></td><td>※概算</td></tr>
+    </table>
+
+    <div class="fp-section-label">物件概要</div>
+    <table class="fp-table">
+      <tr><th style="width:80px;" rowspan="3">土地</th><td id="fpp-land" style="text-align:left;"></td></tr>
+      <tr><td id="fpp-land2" style="text-align:left;"></td></tr>
+      <tr><td id="fpp-land3" style="text-align:left;"></td></tr>
+      <tr><th rowspan="2">建物</th><td id="fpp-building" style="text-align:left;"></td></tr>
+      <tr><td id="fpp-building2" style="text-align:left;"></td></tr>
+      <tr><th>制限</th><td id="fpp-restriction" style="text-align:left;"></td></tr>
+      <tr><th>施設</th><td id="fpp-facilities" style="text-align:left;"></td></tr>
+      <tr><th>備考</th><td id="fpp-note-print" style="text-align:left;"></td></tr>
+    </table>
+
+    <div class="fp-section-label">融資情報</div>
+    <table class="fp-table">
+      <tr><th>金融機関名</th><th>借入金額</th><th>金利種別</th><th>金利</th><th>期間（年）</th><th>月々支払額</th><th>支払い総額</th></tr>
+      <tr id="fpp-loan-row"><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr id="fpp-loan-total"><th>合計</th><td></td><td>-</td><td>-</td><td>-</td><td></td><td></td></tr>
+    </table>
+  </div>
+
+  <!-- ページ2: 返済シミュレーション -->
+  <div class="fp-page fp-page-break">
+    <div class="fp-section-label" style="margin-top:0;">返済シミュレーション</div>
+    <div id="fpp-repay-area"></div>
+  </div>
+
+  <!-- ページ3: 試算表 -->
+  <div class="fp-page">
+    <div class="fp-section-label" style="margin-top:0;">試算表</div>
+    <div class="fp-trial-row">
+      <div>
+        <table class="fp-table">
+          <tr><td style="text-align:left;">■物件購入費用（諸込）</td><td id="fpp-total-cost"></td></tr>
+          <tr><td style="text-align:left;">■リフォーム費用</td><td id="fpp-reform"></td></tr>
+          <tr><td style="text-align:left;">■固定資産税</td><td id="fpp-prop-tax"></td></tr>
+          <tr class="fp-total-row"><td style="text-align:center;">合計</td><td id="fpp-invest-total"></td></tr>
+        </table>
+
+        <table class="fp-table" style="margin-top:16px;">
+          <tr><td style="text-align:left;">①返済額　月</td><td id="fpp-pay-m"></td></tr>
+          <tr><td style="text-align:left;">②返済額　年</td><td id="fpp-pay-y"></td></tr>
+          <tr><td style="text-align:left;">③返済　比率</td><td id="fpp-pay-ratio"></td></tr>
+          <tr><td style="text-align:left;">④家賃収入　年</td><td id="fpp-income-y"></td></tr>
+          <tr><td style="text-align:left;">⑤年間手取り</td><td id="fpp-net-y"></td></tr>
+          <tr><td style="border:none;height:8px;" colspan="2"></td></tr>
+          <tr><td style="text-align:left;">⑥返済後利回り</td><td id="fpp-yield-after"></td></tr>
+          <tr><td style="text-align:left;">⑦投資利回り</td><td id="fpp-yield-invest"></td></tr>
+        </table>
+      </div>
+      <div>
+        <table class="fp-table">
+          <tr><th>想定家賃</th><th>年間収益</th><th>利回り</th></tr>
+          <tbody id="fpp-yield-table"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>株式会社シザースエステート 宿泊事業シミュレーション</footer>
 
 </div><!-- /main-content -->
 
@@ -1148,6 +1450,226 @@ function startSim() {
   g('cover-page').classList.add('hidden');
   g('main-content').classList.remove('hidden');
   updateAll();
+}
+
+/* ─── Main tab switching ─── */
+function switchMainTab(tab, btn) {
+  document.querySelectorAll('.main-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  g('tab-sim').style.display  = tab === 'sim' ? '' : 'none';
+  g('tab-fund').style.display = tab === 'fund' ? '' : 'none';
+  g('fund-print').classList.remove('active');
+  if (tab === 'fund') updateFundCalc();
+}
+
+/* ─── Fund plan calculations ─── */
+function fpVal(id) { return +g(id).value || 0; }
+function fpText(id) { return g(id).value || ''; }
+function fpFmt(n) { return '\u00a5' + Math.round(n).toLocaleString('ja-JP'); }
+
+function updateFundCalc() {
+  const price = fpVal('fp-price');
+  const broker = fpVal('fp-broker');
+  const stamp = fpVal('fp-stamp');
+  const reg = fpVal('fp-reg');
+  const guarantee = fpVal('fp-guarantee');
+  const loanFee = fpVal('fp-loan-fee');
+  const expenseTotal = broker + stamp + reg + guarantee + loanFee;
+  const purchaseTotal = price + expenseTotal;
+  const equity = fpVal('fp-equity');
+  const borrow = Math.max(0, purchaseTotal - equity);
+
+  g('fp-expense-total').textContent = fpFmt(expenseTotal);
+  g('fp-purchase-total').textContent = fpFmt(purchaseTotal);
+  g('fp-borrow').textContent = fpFmt(borrow);
+
+  // Loan calc
+  const rate = fpVal('fp-rate') / 100;
+  const term = fpVal('fp-term');
+  let monthlyPay = 0, totalPay = 0;
+  if (borrow > 0 && rate > 0 && term > 0) {
+    const mr = rate / 12;
+    const n = term * 12;
+    monthlyPay = Math.round(borrow * mr * Math.pow(1 + mr, n) / (Math.pow(1 + mr, n) - 1));
+    totalPay = monthlyPay * n;
+  } else if (borrow > 0 && term > 0) {
+    monthlyPay = Math.round(borrow / (term * 12));
+    totalPay = monthlyPay * term * 12;
+  }
+  g('fp-monthly-pay').textContent = fpFmt(monthlyPay);
+  g('fp-total-pay').textContent = fpFmt(totalPay);
+
+  // Yield summary
+  const reform = fpVal('fp-reform');
+  const propTax = fpVal('fp-prop-tax');
+  const rentIncome = fpVal('fp-rent-income');
+  const investTotal = purchaseTotal + reform;
+  const annualIncome = rentIncome * 12;
+  const annualPay = monthlyPay * 12;
+  const payRatio = annualIncome > 0 ? (annualPay / annualIncome * 100) : 0;
+  const netIncome = annualIncome - annualPay;
+  const yieldAfter = price > 0 ? (netIncome / price * 100) : 0;
+  const yieldInvest = equity > 0 ? (netIncome / equity * 100) : 0;
+
+  let yieldHtml = '<table style="width:100%;font-size:12px;margin-top:8px;"><tr><td>①返済額 月</td><td><strong>' + fpFmt(monthlyPay) + '</strong></td></tr>';
+  yieldHtml += '<tr><td>②返済額 年</td><td><strong>' + fpFmt(annualPay) + '</strong></td></tr>';
+  yieldHtml += '<tr><td>③返済比率</td><td><strong>' + payRatio.toFixed(2) + '%</strong></td></tr>';
+  yieldHtml += '<tr><td>④家賃収入 年</td><td><strong>' + fpFmt(annualIncome) + '</strong></td></tr>';
+  yieldHtml += '<tr><td>⑤年間手取り</td><td><strong>' + fpFmt(netIncome) + '</strong>（④-②）</td></tr>';
+  yieldHtml += '<tr><td colspan="2"><hr></td></tr>';
+  yieldHtml += '<tr><td>⑥返済後利回り</td><td><strong>' + yieldAfter.toFixed(2) + '%</strong>（⑤÷物件価格）</td></tr>';
+  yieldHtml += '<tr><td>⑦投資利回り</td><td><strong>' + yieldInvest.toFixed(2) + '%</strong>（⑤÷自己資金）</td></tr></table>';
+
+  // Yield comparison table
+  if (rentIncome > 0 && investTotal > 0) {
+    yieldHtml += '<table style="width:100%;font-size:12px;margin-top:10px;border-collapse:collapse;"><tr style="background:#f0e6d2;"><th style="padding:4px;">想定家賃</th><th>年間収益</th><th>利回り</th></tr>';
+    const baseRent = rentIncome;
+    for (let r = baseRent; r >= baseRent - 15000; r -= 5000) {
+      if (r <= 0) break;
+      const annual = r * 12;
+      const y = (annual / investTotal * 100);
+      yieldHtml += '<tr><td style="padding:3px;border:1px dotted #ccc;">月 ' + (r / 10000) + '万</td><td style="padding:3px;border:1px dotted #ccc;text-align:right;">' + Math.round(annual / 10000) + '万</td><td style="padding:3px;border:1px dotted #ccc;text-align:right;">' + y.toFixed(2) + '%</td></tr>';
+    }
+    yieldHtml += '</table>';
+  }
+  g('fp-yield-summary').innerHTML = yieldHtml;
+}
+
+// Auto-update on input
+document.querySelectorAll('#tab-fund input').forEach(el => {
+  el.addEventListener('input', updateFundCalc);
+});
+
+/* ─── Generate & Print Fund Plan ─── */
+function generateFundPlan() {
+  updateFundCalc();
+  const price = fpVal('fp-price');
+  const broker = fpVal('fp-broker'), stamp = fpVal('fp-stamp'), reg = fpVal('fp-reg');
+  const guarantee = fpVal('fp-guarantee'), loanFee = fpVal('fp-loan-fee');
+  const expenseTotal = broker + stamp + reg + guarantee + loanFee;
+  const purchaseTotal = price + expenseTotal;
+  const equity = fpVal('fp-equity');
+  const borrow = Math.max(0, purchaseTotal - equity);
+  const rate = fpVal('fp-rate') / 100;
+  const term = fpVal('fp-term');
+  let monthlyPay = 0;
+  if (borrow > 0 && rate > 0 && term > 0) {
+    const mr = rate / 12;
+    const n = term * 12;
+    monthlyPay = Math.round(borrow * mr * Math.pow(1 + mr, n) / (Math.pow(1 + mr, n) - 1));
+  }
+  const totalPay = monthlyPay * term * 12;
+  const reform = fpVal('fp-reform');
+  const propTax = fpVal('fp-prop-tax');
+  const rentIncome = fpVal('fp-rent-income');
+  const investTotal = purchaseTotal + reform;
+
+  // Fill print page 1
+  const now = new Date();
+  g('fpp-date').textContent = '作成日：' + now.getFullYear() + '/' + (now.getMonth()+1) + '/' + now.getDate();
+  g('fpp-name').textContent = fpText('fp-name');
+  g('fpp-type').textContent = fpText('fp-type');
+  g('fpp-address').textContent = fpText('fp-address');
+  g('fpp-price').textContent = fpFmt(price);
+  g('fpp-expenses').textContent = fpFmt(expenseTotal);
+  g('fpp-purchase').textContent = fpFmt(purchaseTotal);
+  g('fpp-equity').textContent = fpFmt(equity);
+  g('fpp-borrow').textContent = fpFmt(borrow);
+
+  g('fpp-broker').textContent = fpFmt(broker);
+  g('fpp-stamp').textContent = fpFmt(stamp);
+  g('fpp-reg').textContent = fpFmt(reg);
+  g('fpp-guarantee').textContent = guarantee > 0 ? fpFmt(guarantee) : '';
+  g('fpp-loan-fee').textContent = fpFmt(loanFee);
+  g('fpp-expense-total').textContent = fpFmt(expenseTotal);
+
+  // Property overview
+  g('fpp-land').textContent = '■面積 ' + fpText('fp-land-area') + '㎡';
+  g('fpp-land2').textContent = '■セットバック ' + fpText('fp-setback');
+  g('fpp-land3').textContent = '■権利 ' + fpText('fp-rights');
+  g('fpp-building').textContent = '■築年数 ' + fpText('fp-age') + '　■延床面積 ' + fpText('fp-building-area') + '㎡';
+  g('fpp-building2').textContent = '■間取り ' + fpText('fp-layout');
+  g('fpp-restriction').textContent = '■建蔽率/容積率 ' + fpText('fp-coverage') + '　■用途地域 ' + fpText('fp-zoning') + '　■都市計画 ' + fpText('fp-city-plan');
+  g('fpp-facilities').textContent = '■水道 ' + fpText('fp-water') + '　■汚水 ' + fpText('fp-sewage') + '　■ガス ' + fpText('fp-gas');
+  g('fpp-note-print').textContent = fpText('fp-note');
+
+  // Loan row
+  const lr = g('fpp-loan-row').children;
+  lr[0].textContent = fpText('fp-bank');
+  lr[1].textContent = fpFmt(borrow);
+  lr[2].textContent = fpText('fp-rate-type');
+  lr[3].textContent = (fpVal('fp-rate')).toFixed(3) + '%';
+  lr[4].textContent = term;
+  lr[5].textContent = fpFmt(monthlyPay);
+  lr[5].style.color = 'red';
+  lr[6].textContent = fpFmt(totalPay);
+  lr[6].style.color = 'red';
+  const lt = g('fpp-loan-total').children;
+  lt[1].textContent = fpFmt(borrow);
+  lt[5].textContent = fpFmt(monthlyPay); lt[5].style.color = 'red';
+  lt[6].textContent = fpFmt(totalPay); lt[6].style.color = 'red';
+
+  // Repayment simulation - compute all years first
+  let remaining = borrow;
+  const mr = rate / 12;
+  const yearData = [];
+  for (let y = 1; y <= term; y++) {
+    let yp = 0, yi = 0;
+    for (let m = 0; m < 12; m++) {
+      if (remaining <= 0) break;
+      const interest = Math.round(remaining * mr);
+      const principal = Math.min(monthlyPay - interest, remaining);
+      yp += principal; yi += interest;
+      remaining = Math.max(0, remaining - principal);
+    }
+    yearData.push({ year: y, principal: Math.round(yp), interest: Math.round(yi), balance: Math.round(remaining) });
+  }
+  // Build tables in chunks of 10
+  const chunkSize = 10;
+  let repayHtml = '';
+  for (let c = 0; c < yearData.length; c += chunkSize) {
+    const chunk = yearData.slice(c, c + chunkSize);
+    repayHtml += '<table class="fp-table fp-repay" style="margin-bottom:12px;"><tr><th>支払年数</th>';
+    chunk.forEach(d => repayHtml += '<th>' + d.year + '</th>');
+    repayHtml += '</tr><tr><td style="background:#f0e6d2;font-weight:600;text-align:center;">返済元金</td>';
+    chunk.forEach(d => repayHtml += '<td>' + d.principal.toLocaleString() + '</td>');
+    repayHtml += '</tr><tr style="background:#fff0f0;"><td style="background:#f0e6d2;font-weight:600;text-align:center;">支払利息</td>';
+    chunk.forEach(d => repayHtml += '<td>' + d.interest.toLocaleString() + '</td>');
+    repayHtml += '</tr><tr><td style="background:#f0e6d2;font-weight:600;text-align:center;">借入残高</td>';
+    chunk.forEach(d => repayHtml += '<td>' + d.balance.toLocaleString() + '</td>');
+    repayHtml += '</tr></table>';
+  }
+  g('fpp-repay-area').innerHTML = repayHtml;
+
+  // Trial calc
+  g('fpp-total-cost').textContent = fpFmt(purchaseTotal);
+  g('fpp-reform').textContent = fpFmt(reform);
+  g('fpp-prop-tax').textContent = fpFmt(propTax);
+  g('fpp-invest-total').textContent = fpFmt(investTotal + propTax);
+  const annualPay = monthlyPay * 12;
+  const annualIncome = rentIncome * 12;
+  g('fpp-pay-m').textContent = fpFmt(monthlyPay);
+  g('fpp-pay-y').textContent = fpFmt(annualPay);
+  g('fpp-pay-ratio').textContent = annualIncome > 0 ? (annualPay / annualIncome * 100).toFixed(2) + '%' : '-';
+  g('fpp-income-y').textContent = fpFmt(annualIncome);
+  const netIncome = annualIncome - annualPay;
+  g('fpp-net-y').textContent = fpFmt(netIncome);
+  g('fpp-yield-after').textContent = price > 0 ? (netIncome / price * 100).toFixed(2) + '%' : '-';
+  g('fpp-yield-invest').textContent = equity > 0 ? (netIncome / equity * 100).toFixed(2) + '%' : '-';
+
+  // Yield table
+  let ytHtml = '';
+  const baseRent = rentIncome;
+  for (let r = baseRent; r >= baseRent - 15000; r -= 5000) {
+    if (r <= 0) break;
+    const a = r * 12;
+    ytHtml += '<tr><td>月 ' + (r/10000) + '万</td><td>' + Math.round(a/10000) + '万</td><td>' + (investTotal > 0 ? (a/investTotal*100).toFixed(2) : 0) + '%</td></tr>';
+  }
+  g('fpp-yield-table').innerHTML = ytHtml;
+
+  // Show print area and print
+  g('fund-print').classList.add('active');
+  setTimeout(() => window.print(), 300);
 }
 
 /* ─── Init ─── */
