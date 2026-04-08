@@ -567,22 +567,26 @@
   @media print {
     * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
     body { background: #fff; font-size: 11px; }
-    .cover { min-height: 100vh; padding: 60px 24px; page-break-after: always; }
-    .cover.hidden { display: flex !important; }
-    .cover-start-btn { display: none !important; }
-    .cover-location-input { border-bottom: none; }
-    .main-content.hidden { display: block !important; }
-    .main-tab-bar { display: none !important; }
-    #tab-fund { display: none !important; }
     /* 資金計画書印刷モード */
-    body.fund-printing .cover { display: none !important; }
-    body.fund-printing header { display: none !important; }
-    body.fund-printing #tab-sim { display: none !important; }
-    body.fund-printing #tab-fund { display: none !important; }
+    body.fund-printing .cover,
+    body.fund-printing .cover.hidden { display: none !important; }
+    body.fund-printing .main-content,
+    body.fund-printing .main-content.hidden { display: block !important; }
+    body.fund-printing header,
+    body.fund-printing .main-tab-bar,
+    body.fund-printing #tab-sim,
+    body.fund-printing #tab-fund,
     body.fund-printing footer { display: none !important; }
     body.fund-printing .fund-print-area { display: block !important; }
     /* 通常印刷モード（シミュレーター） */
+    body:not(.fund-printing) .cover { min-height: 100vh; padding: 60px 24px; page-break-after: always; }
+    body:not(.fund-printing) .cover.hidden { display: flex !important; }
+    body:not(.fund-printing) .cover-start-btn { display: none !important; }
+    body:not(.fund-printing) .cover-location-input { border-bottom: none; }
+    body:not(.fund-printing) .main-content.hidden { display: block !important; }
     body:not(.fund-printing) .fund-print-area { display: none !important; }
+    .main-tab-bar { display: none !important; }
+    #tab-fund { display: none !important; }
     header { position: static; box-shadow: none; }
     .btn-print { display: none !important; }
     .container { padding: 12px 0; max-width: 100%; }
@@ -1622,7 +1626,6 @@ function generateFundPlan() {
   g('fpp-cover-name').textContent = fpText('fp-name');
   g('fpp-cover-address').textContent = fpText('fp-address');
   g('fpp-cover-date').textContent = dateStr;
-  g('fpp-cover-company').textContent = '株式会社シザースエステート';
 
   // Fill print page 1
   g('fpp-date').textContent = '作成日：' + dateStr;
@@ -1725,12 +1728,38 @@ function generateFundPlan() {
   });
   g('fpp-yield-table').innerHTML = ytHtml;
 
-  // Show print area and print
-  document.body.classList.add('fund-printing');
+  // Show print area and print - hide everything except fund-print
+  const hideEls = [
+    g('cover-page'),
+    document.querySelector('header'),
+    document.querySelector('.main-tab-bar'),
+    g('tab-sim'),
+    g('tab-fund'),
+    document.querySelector('footer')
+  ].filter(Boolean);
+
+  // Force main-content visible
+  const mc = g('main-content');
+  const mcWasHidden = mc.classList.contains('hidden');
+  mc.classList.remove('hidden');
+  mc.style.display = 'block';
+
+  // Hide everything else
+  hideEls.forEach(el => el.style.setProperty('display', 'none', 'important'));
+
+  // Show fund-print
+  const fp = g('fund-print');
+  fp.style.setProperty('display', 'block', 'important');
+
   setTimeout(() => {
     window.print();
-    // 印刷ダイアログが閉じた後にクラスを除去
-    setTimeout(() => document.body.classList.remove('fund-printing'), 500);
+    // Restore after print
+    setTimeout(() => {
+      hideEls.forEach(el => el.style.removeProperty('display'));
+      fp.style.display = 'none';
+      if (mcWasHidden) mc.classList.add('hidden');
+      mc.style.removeProperty('display');
+    }, 500);
   }, 300);
 }
 
