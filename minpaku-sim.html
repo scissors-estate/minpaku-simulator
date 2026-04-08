@@ -903,9 +903,10 @@
       </div>
       <div>
         <h4 class="fund-sub-title">施設・備考</h4>
-        <div class="fund-row"><label>水道</label><input type="text" id="fp-water" placeholder="公営"></div>
-        <div class="fund-row"><label>汚水</label><input type="text" id="fp-sewage" placeholder="公共下水"></div>
-        <div class="fund-row"><label>ガス</label><input type="text" id="fp-gas" placeholder="都市ガス"></div>
+        <div class="fund-row"><label>上水道</label><input type="text" id="fp-water" placeholder="公共水道"></div>
+        <div class="fund-row"><label>下水道</label><input type="text" id="fp-sewage" placeholder="本下水"></div>
+        <div class="fund-row"><label>電気</label><input type="text" id="fp-electric" placeholder="東京電力"></div>
+        <div class="fund-row"><label>ガス</label><input type="text" id="fp-gas" placeholder="東京ガス"></div>
         <div class="fund-row"><label>備考</label><input type="text" id="fp-note" placeholder="現状 空室"></div>
       </div>
     </div>
@@ -1652,7 +1653,7 @@ function generateFundPlan() {
   g('fpp-building').textContent = '■築年数 ' + fpText('fp-age') + '　■延床面積 ' + fpText('fp-building-area') + '㎡';
   g('fpp-building2').textContent = '■間取り ' + fpText('fp-layout');
   g('fpp-restriction').textContent = '■建蔽率/容積率 ' + fpText('fp-coverage') + '　■用途地域 ' + fpText('fp-zoning') + '　■都市計画 ' + fpText('fp-city-plan');
-  g('fpp-facilities').textContent = '■水道 ' + fpText('fp-water') + '　■汚水 ' + fpText('fp-sewage') + '　■ガス ' + fpText('fp-gas');
+  g('fpp-facilities').textContent = '■上水道 ' + fpText('fp-water') + '　■下水道 ' + fpText('fp-sewage') + '　■電気 ' + fpText('fp-electric') + '　■ガス ' + fpText('fp-gas');
   g('fpp-note-print').textContent = fpText('fp-note');
 
   // Loan row
@@ -1784,9 +1785,10 @@ function prefillFundData() {
   g('fp-coverage').value = '60%（角地緩和70%）/200%';
   g('fp-zoning').value = '工業';
   g('fp-city-plan').value = '市街化区域';
-  g('fp-water').value = '光栄';
-  g('fp-sewage').value = '公共下水';
-  g('fp-gas').value = '都市ガス';
+  g('fp-water').value = '公共水道';
+  g('fp-sewage').value = '本下水';
+  g('fp-electric').value = '東京電力';
+  g('fp-gas').value = '東京ガス';
   g('fp-note').value = '現状 空室';
   g('fp-rate-type').value = '長期固定';
   g('fp-rate').value = 2;
