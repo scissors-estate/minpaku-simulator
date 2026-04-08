@@ -476,8 +476,7 @@
   .fund-print-area { display: none; }
 
   @media print {
-    .fund-print-area.active { display: block !important; }
-    .fund-print-area.active ~ footer { display: none; }
+    /* fund-print handled by body.fund-printing in main print block */
   }
 
   .fp-page { padding: 24px 28px; }
@@ -535,12 +534,15 @@
     .main-content.hidden { display: block !important; }
     .main-tab-bar { display: none !important; }
     #tab-fund { display: none !important; }
-    .fund-print-area:not(.active) ~ #tab-sim { display: block !important; }
-    .fund-print-area.active { display: block !important; }
-    .fund-print-area.active ~ #tab-sim { display: none !important; }
-    .fund-print-area.active ~ footer { display: none !important; }
-    .cover { display: none !important; }
-    .fund-print-area.active ~ .cover { display: none !important; }
+    /* 資金計画書印刷モード */
+    body.fund-printing .cover { display: none !important; }
+    body.fund-printing header { display: none !important; }
+    body.fund-printing #tab-sim { display: none !important; }
+    body.fund-printing #tab-fund { display: none !important; }
+    body.fund-printing footer { display: none !important; }
+    body.fund-printing .fund-print-area { display: block !important; }
+    /* 通常印刷モード（シミュレーター） */
+    body:not(.fund-printing) .fund-print-area { display: none !important; }
     header { position: static; box-shadow: none; }
     .btn-print { display: none !important; }
     .container { padding: 12px 0; max-width: 100%; }
@@ -1458,7 +1460,7 @@ function switchMainTab(tab, btn) {
   btn.classList.add('active');
   g('tab-sim').style.display  = tab === 'sim' ? '' : 'none';
   g('tab-fund').style.display = tab === 'fund' ? '' : 'none';
-  g('fund-print').classList.remove('active');
+  document.body.classList.remove('fund-printing');
   if (tab === 'fund') updateFundCalc();
 }
 
@@ -1523,13 +1525,12 @@ function updateFundCalc() {
   // Yield comparison table
   if (rentIncome > 0 && investTotal > 0) {
     yieldHtml += '<table style="width:100%;font-size:12px;margin-top:10px;border-collapse:collapse;"><tr style="background:#f0e6d2;"><th style="padding:4px;">想定家賃</th><th>年間収益</th><th>利回り</th></tr>';
-    const baseRent = rentIncome;
-    for (let r = baseRent; r >= baseRent - 15000; r -= 5000) {
-      if (r <= 0) break;
+    const yieldRents = [3600000, 4200000, 4800000, 5400000];
+    yieldRents.forEach(r => {
       const annual = r * 12;
       const y = (annual / investTotal * 100);
       yieldHtml += '<tr><td style="padding:3px;border:1px dotted #ccc;">月 ' + (r / 10000) + '万</td><td style="padding:3px;border:1px dotted #ccc;text-align:right;">' + Math.round(annual / 10000) + '万</td><td style="padding:3px;border:1px dotted #ccc;text-align:right;">' + y.toFixed(2) + '%</td></tr>';
-    }
+    });
     yieldHtml += '</table>';
   }
   g('fp-yield-summary').innerHTML = yieldHtml;
@@ -1659,18 +1660,55 @@ function generateFundPlan() {
 
   // Yield table
   let ytHtml = '';
-  const baseRent = rentIncome;
-  for (let r = baseRent; r >= baseRent - 15000; r -= 5000) {
-    if (r <= 0) break;
+  const yieldRentsPrint = [3600000, 4200000, 4800000, 5400000];
+  yieldRentsPrint.forEach(r => {
     const a = r * 12;
     ytHtml += '<tr><td>月 ' + (r/10000) + '万</td><td>' + Math.round(a/10000) + '万</td><td>' + (investTotal > 0 ? (a/investTotal*100).toFixed(2) : 0) + '%</td></tr>';
-  }
+  });
   g('fpp-yield-table').innerHTML = ytHtml;
 
   // Show print area and print
-  g('fund-print').classList.add('active');
-  setTimeout(() => window.print(), 300);
+  document.body.classList.add('fund-printing');
+  setTimeout(() => {
+    window.print();
+    // 印刷ダイアログが閉じた後にクラスを除去
+    setTimeout(() => document.body.classList.remove('fund-printing'), 500);
+  }, 300);
 }
+
+/* ─── Pre-fill fund plan data ─── */
+function prefillFundData() {
+  g('fp-name').value = 'ハラコーポ';
+  g('fp-type').value = 'マンション';
+  g('fp-address').value = '東京都葛飾区宝町2丁目20番5号';
+  g('fp-price').value = 188000000;
+  g('fp-broker').value = 0;
+  g('fp-stamp').value = 10000;
+  g('fp-reg').value = 1000000;
+  g('fp-guarantee').value = 0;
+  g('fp-loan-fee').value = 0;
+  g('fp-equity').value = 50000000;
+  g('fp-land-area').value = 327.74;
+  g('fp-setback').value = '無';
+  g('fp-rights').value = '所有権';
+  g('fp-age').value = '1990年';
+  g('fp-building-area').value = 625.55;
+  g('fp-layout').value = '5K';
+  g('fp-coverage').value = '60%（角地緩和70%）/200%';
+  g('fp-zoning').value = '工業';
+  g('fp-city-plan').value = '市街化区域';
+  g('fp-water').value = '光栄';
+  g('fp-sewage').value = '公共下水';
+  g('fp-gas').value = '都市ガス';
+  g('fp-note').value = '現状 空室';
+  g('fp-rate-type').value = '長期固定';
+  g('fp-rate').value = 2;
+  g('fp-term').value = 20;
+  g('fp-reform').value = 3000000;
+  g('fp-prop-tax').value = 1000000;
+  g('fp-rent-income').value = 3600000;
+}
+prefillFundData();
 
 /* ─── Init ─── */
 // Don't run updateAll on load (main-content is hidden)
